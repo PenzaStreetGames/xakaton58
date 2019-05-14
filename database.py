@@ -107,7 +107,6 @@ class UserModel:
 
     @staticmethod
     def change_status(user_id, status):
-        print(status)
         try:
             user = User.query.filter_by(id=user_id).first()
             if not user:

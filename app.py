@@ -4,7 +4,6 @@ from flask import session, send_file
 from flask import request, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
-import datetime
 
 import os
 from database import *
@@ -24,9 +23,17 @@ stages = {
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'username' in session:
-        return render_template('')
-    return "Привет, Яндекс!"
+    is_login = session.get("user_id", None)
+    if is_login:
+        tasks = TaskModel.get_by_author(session["user_id"])
+    else:
+        tasks = []
+    params = {
+        "is_login": is_login,
+        "tasks": tasks,
+        "task_number": len(tasks)
+    }
+    return render_template("index.html", **params)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -81,7 +88,7 @@ def add_task():
 
     form = AddTask()
     if form.validate_on_submit():
-        TaskModel.create(form.name.data, form.desc.data, session['user_id'])
+        TaskModel.create(form.name.data, form.desc.data, session['user_id'], form.date.data)
         return redirect('/')
 
     # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')
@@ -101,6 +108,21 @@ def task_categories():
 @app.route('/admin')
 def admin():
     return "Привет, Яндекс!"
+
+
+@app.route("/task_edit/<int:task_id>")
+def task_edit(task_id):
+    return "Редактирование"
+
+
+@app.route("/task_info/<int:task_id>")
+def task_info(task_id):
+    return "Информация"
+
+
+@app.route("/task_delete/<int:task_id>")
+def task_delete(task_id):
+    return "Удаление"
 
 
 if __name__ == '__main__':

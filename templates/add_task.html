@@ -3,7 +3,7 @@
 {% block content %}
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        {% for field in [form.name, form.desc] %}
+        {% for field in [form.name, form.desc, form.date] %}
             <p>
                 {{ field.label }}<br>
                 {{ field }}<br>

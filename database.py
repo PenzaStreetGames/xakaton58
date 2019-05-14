@@ -168,5 +168,7 @@ class CategoryModel:
         pass
 
 
+class
+
 db.create_all()
 # UserModel.add_admin(*MAIN_ADMIN)

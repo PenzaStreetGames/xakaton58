@@ -23,7 +23,8 @@ stages = {
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Привет, Яндекс!"
+
+    return render_template("base.html")
 
 
 @app.route('/register', methods=['GET', 'POST'])

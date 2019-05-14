@@ -1,7 +1,4 @@
-from sqlalchemy import func, or_
 from dbhelper import *
-import shutil
-from functools import reduce
 
 
 # Проверка на админа

@@ -1,9 +1,28 @@
 {% extends "base.html" %}
- 
+
 {% block content %}
+{% if is_login%}
 <table>
     {% for i in range(task_number) %}
-        <tr></tr>
+    <tr>
+        <td>tasks[i].name</td>
+        <td>tasks[i].date</td>
+        <td>tasks[i].executor</td>
+        <td>tasks[i].stage</td>
+        <td>tasks[i].executed</td>
+        <td>tasks[i].priority</td>
+        <td><a href="/task_info/{{tasks[i].id}}">Подробнее</a></td>
+        <td><a href="/task_edit/{{tasks[i].id}}">Редактировать</a></td>
+        <td><a href="/task_delete/{{tasks[i].id}}">Удалить</a></td>
+    </tr>
     {% endfor %}
 </table>
+{% else %}
+<div class="alert alert-danger" role="alert">
+    Необходимо залогиниться для отображения задач
+</div>
+<a href="/register">Регистрация</a>
+<br>
+<a href="/login">Вход</a>
+{% endif %}
 {% endblock %}

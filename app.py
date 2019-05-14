@@ -23,8 +23,17 @@ stages = {
 @app.route('/')
 @app.route('/index')
 def index():
-
-    return render_template("base.html")
+    is_login = session.get("user_id", None)
+    if is_login:
+        tasks = TaskModel.get_by_author(session["user_id"])
+    else:
+        tasks = []
+    params = {
+        "is_login": is_login,
+        "tasks": tasks,
+        "task_number": len(tasks)
+    }
+    return render_template("index.html", **params)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -105,6 +114,21 @@ def task_categories():
 @app.route('/admin')
 def admin():
     return "Привет, Яндекс!"
+
+
+@app.route("/task_edit/<int:task_id>")
+def task_edit(task_id):
+    return "Редактирование"
+
+
+@app.route("/task_info/<int:task_id>")
+def task_info(task_id):
+    return "Информация"
+
+
+@app.route("/task_delete/<int:task_id>")
+def task_delete(task_id):
+    return "Удаление"
 
 
 if __name__ == '__main__':

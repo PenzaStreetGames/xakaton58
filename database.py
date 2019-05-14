@@ -136,6 +136,14 @@ class TaskModel:
         db.session.commit()
 
     @staticmethod
+    def get_by_author(author):
+        """получение задач пользователя"""
+        task = Task.query.filter(Task.author_id == author).all()
+        if not task:
+            return []
+        return task
+
+    @staticmethod
     def is_delegated(task_id):
         return bool(Delegation.query.filter_by(task_id=task_id).count())
 
@@ -159,14 +167,6 @@ class CategoryModel:
     def get_by_category(self, category):
         """получеие пользователя по id"""
         task = Task.query.filter(Task.id == category).all()
-        if not task:
-            return
-        return task
-
-    @staticmethod
-    def get_by_author(self, author):
-        """получение задач пользователя"""
-        task = Task.query.filter(Task.author_id == author).all()
         if not task:
             return
         return task

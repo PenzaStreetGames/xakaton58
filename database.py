@@ -108,7 +108,8 @@ class TaskModel:
 
 
     @staticmethod
-    def create():
+    def create(name, description, date, author, executor, priority, category,
+               stage, tags):
         pass
 
 
@@ -132,6 +133,9 @@ class CategoryModel:
 
     def delete(self):
         pass
+
+
+
 
 
 db.create_all()

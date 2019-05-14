@@ -114,9 +114,19 @@ class TaskModel:
 
 
     @staticmethod
-    def create(name, description, date, author, executor, priority, category,
-               stage, tags):
-        pass
+    def create(name, description, date, author, executor=None, priority=1, category="",
+               stage=1, tags=[]):
+        task = Task(name=name,
+                    description=description,
+                    date=date,
+                    author=author,
+                    executor_id=executor,
+                    priority=priority,
+                    category=category,
+                    stage=stage,
+                    tags=tags)
+        db.session.add(task)
+        db.session.commit()
 
     @staticmethod
     def is_delegated(task_id):

@@ -13,6 +13,11 @@ app.config['SECRET_KEY'] = 'yandexlyceum58_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+stages = {
+    1: "Новая",
+    2: "Начата",
+    3: "Закончена"
+}
 
 
 @app.route('/')

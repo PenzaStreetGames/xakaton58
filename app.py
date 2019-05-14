@@ -110,24 +110,31 @@ def admin():
                                status_form=status_form, ban_form=ban_form,
                                status_message=status_message)
 
-    # if ban_form.ban_submit.data and ban_form.validate_on_submit():
-    #     id = ban_form.ban_field.data
-    #     user = User.query.filter_by(id=id).first()
-    #     ban_message = 'Пользователь не существует'
-    #     if user:
-    #         ban_message = functions.ban_user(id)
-    #
-    #     return render_template('admin.html', title='ADMIN',
-    #                            status_form=status_form, ban_form=ban_form, info_form=info_form,
-    #                            ban_message=ban_message)
-
     return render_template('admin.html', title='ADMIN',
                            status_form=status_form, ban_form=ban_form)
 
 
-@app.route('/users')
+@app.route('/admin/users', methods=['GET', 'POST'])
 def users():
-    return "Привет, Яндекс!"
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    users = User.query.all()
+    return render_template('users.html', title='ADMIN: USERS', users=users)
+
+
+@app.route('/admin/change-status/<int:id>', methods=['GET', 'POST'])
+def change_status(id):
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    user = User.query.filter_by(id=id).first()
+    user.banned = not user.banned
+    db.session.commit()
+
+    return redirect('/admin/users')
 
 
 @app.route('/task-categories')

@@ -8,7 +8,7 @@ from flask_wtf.file import FileField, FileAllowed, FileRequired
 class LoginForm(FlaskForm):  # Форма входа
     username = StringField('Логин', validators=[
         DataRequired(message='Поле обязательно для заполнения'),
-        Length(min=6, max=32, message='Логин должен быть длиной от 6 до 32 символов')])
+        Length(min=5, max=32, message='Логин должен быть длиной от 6 до 32 символов')])
     password = PasswordField('Пароль', validators=[
         DataRequired(message='Поле обязательно для заполнения'),
         Length(min=8, max=32, message='Пароль должен быть длиной от 8 до 32 символов')])
@@ -40,3 +40,22 @@ class AddTask(FlaskForm):  # Форма добавления задачи
         Length(min=3, max=1000, message='Описание должено быть длиной от 3 до 1000 символов')])
     date = DateTimeField()
     submit = SubmitField('Добавить задачу')
+
+
+class StatusForm(FlaskForm):  # Администраторская форма изменения статуса пользователей
+    status_field = IntegerField('ID', validators=[
+        DataRequired(message='Поле обязательно для заполнения')])
+    status_select = SelectField(choices=[(a, a) for a in ['Участник', 'Админ']])
+    status_submit = SubmitField('OK')
+
+
+class BanForm(FlaskForm):  # Администраторская форма бана пользователей
+    ban_field = IntegerField('ID',
+                             validators=[DataRequired(message='Поле обязательно для заполнения')])
+    ban_submit = SubmitField('OK')
+
+
+class InfoForm(FlaskForm):  # Администраторская форма удобного получения информации о пользователе
+    info_field = IntegerField('ID',
+                              validators=[DataRequired(message='Поле обязательно для заполнения')])
+    info_submit = SubmitField('OK')

@@ -8,7 +8,8 @@ import string
 import random
 from datetime import datetime
 
-TOKEN_CHARSET = list(string.ascii_lowercase + string.ascii_uppercase + string.digits)
+TOKEN_CHARSET = list(string.ascii_lowercase + string.ascii_uppercase +
+                     string.digits)
 tokens_ids, ids_tokens = {}, {}
 
 

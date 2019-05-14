@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 DATABASE_NAME = "database.db"
 TITLE = "TaskDelegator"
 STATUSES = {
@@ -16,6 +15,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum58_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
 
 # Модели
 
@@ -65,7 +65,8 @@ class Comment(db.Model):
 class Delegation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    executor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    executor_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                            nullable=False)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
 
 
@@ -117,7 +118,8 @@ class UserModel:
 
     @staticmethod
     def is_admin(session):
-        return 'user_id' in session and User.query.filter_by(id=session['user_id'], is_admin=True).first()
+        return 'user_id' in session and User.query.filter_by(
+            id=session['user_id'], is_admin=True).first()
 
     @staticmethod
     def user_exists(username):
@@ -152,9 +154,9 @@ class TaskModel:
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
 
-
     @staticmethod
-    def create(name, description, author, date, executor=None, priority=1, category="",
+    def create(name, description, author, date, executor=None, priority=1,
+               category="",
                stage=1):
         task = Task(name=name,
                     description=description,

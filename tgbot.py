@@ -1,10 +1,10 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from database import *
 
-
 TOKEN = '846229948:AAGQ6Ey8qX_yRYFzrjVnWp7_dp9h68J7JhY'
 updater = None
-task_info = ["Название задачи", "Описание задачи", "Категория", "Дата завершения"]
+task_info = ["Название задачи", "Описание задачи", "Категория",
+             "Дата завершения"]
 current = 0
 quest_mode = False
 
@@ -15,7 +15,8 @@ def main():
     dp = updater.dispatcher
     text_handler = MessageHandler(Filters.text, echo)
     dp.add_handler(text_handler)
-    dp.add_handler(CommandHandler("auth", auth, pass_args=True, pass_user_data=True))
+    dp.add_handler(
+        CommandHandler("auth", auth, pass_args=True, pass_user_data=True))
     dp.add_handler(CommandHandler("what", what, pass_user_data=True))
     dp.add_handler(CommandHandler("logout", logout, pass_user_data=True))
     dp.add_handler(CommandHandler("task", task))
@@ -33,8 +34,11 @@ def echo(bot, update):
     task_info[current] = update.message.text
     current += 1
     if current == 4:
-        TaskModel.create(task_info[0], task_info[1], datetime.datetime.strptime(task_info[3], '%Y-%m-%d-%H.%M'),
-                         User.query.filter_by(username=tg.login).first().id, category=task_info[2])
+        TaskModel.create(task_info[0], task_info[1],
+                         datetime.datetime.strptime(task_info[3],
+                                                    '%Y-%m-%d-%H.%M'),
+                         User.query.filter_by(username=tg.login).first().id,
+                         category=task_info[2])
         update.message.reply_text("Добавлено")
         quest_mode = False
         return
@@ -87,7 +91,8 @@ def task(bot, update):
         update.message.reply_text("Вы не авторизированы")
         return
     result = ""
-    tasks = Task.query.filter_by(author_id=User.query.filter_by(username=tg.login).first().id).all()
+    tasks = Task.query.filter_by(
+        author_id=User.query.filter_by(username=tg.login).first().id).all()
     for t in tasks:
         result += f"ID{t.id}. {t.name} - {t.date.strftime('%Y-%m-%d-%H.%M')}\n"
 
@@ -100,7 +105,8 @@ def expired_task(bot, update):
         update.message.reply_text("Вы не авторизированы")
         return
     result = ""
-    tasks = Task.query.filter_by(author_id=User.query.filter_by(username=tg.login).first().id).all()
+    tasks = Task.query.filter_by(
+        author_id=User.query.filter_by(username=tg.login).first().id).all()
     for t in tasks:
         if t.date > datetime.datetime.now():
             continue

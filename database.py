@@ -63,8 +63,6 @@ class Comment(db.Model):
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
-db.create_all()
-
 # Методы
 
 

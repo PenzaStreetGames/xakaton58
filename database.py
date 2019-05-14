@@ -1,8 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from datetime import time
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
 
 
 DATABASE_NAME = "database.db"
@@ -153,6 +151,7 @@ class TaskModel:
     @staticmethod
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
+
 
     @staticmethod
     def create(name, description, author, date, executor=None, priority=1, category="",

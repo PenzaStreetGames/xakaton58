@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import string
 import random
+from datetime import datetime
 
 TOKEN_CHARSET = list(string.ascii_lowercase + string.ascii_uppercase + string.digits)
 tokens_ids, ids_tokens = {}, {}
@@ -119,10 +120,6 @@ def edit_task(id):
     task = Task.query.filter(Task.id == id).first()
     if not task or task.author_id != session['user_id']:
         return 'Страница не существует или отказано в доступе'
-    if form.validate_on_submit():
-        task.name = request.form
-
-
 
     form = AddTask()
     if form.validate_on_submit():
@@ -198,9 +195,42 @@ def api_auth():
     user = User.query.filter_by(username=request.json['username']).first()
     if not user or not check_password_hash(user.password_hash, request.json['password']):
         return jsonify({'error': 'wrong login or password'})
-
-
     return jsonify({'token': generate_token(user.id)})
+
+
+@app.route("/api/task", methods=["POST"])
+def api_task():
+    errors = []
+    for criterion in ['token', 'name', 'description', 'date']:
+        if criterion not in request.json:
+            errors.append('Missing' + ' ' + criterion)
+
+    if errors:
+        return jsonify({'error': '. '.join(errors)})
+
+    if not request.json['token'] in tokens_ids:
+        errors.append('Wrong token')
+
+    if not 3 <= len(request.json['name']) <= 80:
+        errors.append('Wrong name len')
+
+    if not 3 <= len(request.json['description']) <= 1000:
+        errors.append('Wrong description len')
+
+    try:
+        date = datetime.strptime(request.json['date'], '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        errors.append('Wrong date format, use %Y-%m-%d %H:%M:%S')
+
+    if errors:
+        return jsonify({'error': '. '.join(errors)})
+
+    TaskModel.create(request.json['name'], request.json['description'], tokens_ids[request.json['token']], date)
+    return jsonify({'ok': 'success'})
+
+
+
+
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')

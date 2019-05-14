@@ -13,7 +13,7 @@
         <td>{{tasks[i].executed}}</td>
         <td>{{tasks[i].priority}}</td>
         <td><a href="/task_info/{{tasks[i].id}}">Подробнее</a></td>
-        <td><a href="/task_edit/{{tasks[i].id}}">Редактировать</a></td>
+        <td><a href="/add-task/{{tasks[i].id}}">Редактировать</a></td>
         <td><a href="/task_delete/{{tasks[i].id}}">Удалить</a></td>
     </tr>
     {% endfor %}

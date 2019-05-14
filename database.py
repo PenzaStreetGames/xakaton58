@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from datetime import time
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 
 
@@ -112,6 +112,16 @@ class UserModel:
     @staticmethod
     def user_exists(username):
         return bool(User.query.filter_by(username=username).first())
+
+    @staticmethod
+    def user_with_password(username, password):
+        user_exist = User.query.filter_by(username=username).first()
+        if not user_exist:
+            return "no user"
+        user = User.query.filter_by(username=username).first()
+        if not check_password_hash(user.password_hash, password):
+            return "no password"
+        return user
 
     @staticmethod
     def change_status(user_id, status):

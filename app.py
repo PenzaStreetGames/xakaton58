@@ -119,6 +119,8 @@ def edit_task(id):
     task = Task.query.filter(Task.id == id).first()
     if not task or task.author_id != session['user_id']:
         return 'Страница не существует или отказано в доступе'
+    if form.validate_on_submit():
+        task.name = request.form
 
 
 
@@ -179,11 +181,6 @@ def change_status(id):
 @app.route('/task-categories')
 def task_categories():
     return "Привет, Яндекс!"
-
-
-@app.route("/task_edit/<int:task_id>")
-def task_edit(task_id):
-    return "Редактирование"
 
 
 @app.route("/task_info/<int:task_id>")

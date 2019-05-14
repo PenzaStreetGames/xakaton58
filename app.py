@@ -1,9 +1,27 @@
-from flask import Flask
+from flask import Flask, jsonify
 from forms import *
 from flask import session, send_file
 from flask import request, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
+import string
+import random
+
+TOKEN_CHARSET = list(string.ascii_lowercase + string.ascii_uppercase + string.digits)
+tokens_ids, ids_tokens = {}, {}
+
+
+def generate_token(user_id):
+    """Генерирует и записывает токен"""
+    token = ''.join(random.choice(TOKEN_CHARSET) for i in range(16))
+    while token in tokens_ids:
+        token = ''.join(random.choice(TOKEN_CHARSET) for i in range(16))
+    if user_id in ids_tokens:
+        del tokens_ids[ids_tokens[user_id]]
+    tokens_ids[token] = user_id
+    ids_tokens[user_id] = token
+    return token
+
 
 import os
 from database import *
@@ -91,7 +109,24 @@ def add_task():
         TaskModel.create(form.name.data, form.desc.data, session['user_id'], form.date.data)
         return redirect('/')
 
-    # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')
+    return render_template('add_task.html', title='Добавить таск', form=form)
+
+
+@app.route('/add-task/<int:id>', methods=['GET', 'POST'])
+def edit_task(id):
+    if 'username' not in session:
+        return redirect('/login')
+    task = Task.query.filter(Task.id == id).first()
+    if not task or task.author_id != session['user_id']:
+        return 'Страница не существует или отказано в доступе'
+
+
+
+    form = AddTask()
+    if form.validate_on_submit():
+        TaskModel.create(form.name.data, form.desc.data, session['user_id'], form.date.data)
+        return redirect('/')
+
     return render_template('add_task.html', title='Добавить таск', form=form)
 
 
@@ -160,6 +195,15 @@ def task_info(task_id):
 def task_delete(task_id):
     return "Удаление"
 
+
+@app.route("/api/auth", methods=["POST"])
+def api_auth():
+    user = User.query.filter_by(username=request.json['username']).first()
+    if not user or not check_password_hash(user.password_hash, request.json['password']):
+        return jsonify({'error': 'wrong login or password'})
+
+
+    return jsonify({'token': generate_token(user.id)})
 
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')

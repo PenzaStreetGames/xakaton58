@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+ 
+{% block content %}
+    <h1>Пользователи</h1>
+    {% for user in users %}
+        <div>
+            <h3>ID{{user.id}}. {{user.username}}</h3>
+            {% if user.banned %}
+                <h4>Статус: заблокирован</h4>
+                <a href="change-status/{{user.id}}">Разблокировать</a>
+            {% else %}
+                <h4>Статус: активен</h4>
+                <a href="change-status/{{user.id}}">Заблокировать</a>
+            {% endif %}
+            <hr>
+        </div>
+    {% endfor %}
+    <br>
+{% endblock %}

@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 DATABASE_NAME = "database.db"
@@ -30,7 +30,7 @@ class User(db.Model):
     banned = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
-        return f'User ID{self.id}. {self.username}'
+        return f'User ID{self.id}. {self.username} - ADMIN ({self.is_admin})'
 
 
 class Task(db.Model):
@@ -105,12 +105,34 @@ class UserModel:
 
     @staticmethod
     def is_admin(session):
-        return 'user_id' in session and User.query.filter_by(
-            User.id == session['user_id'], User.is_admin == True).first()
+        return 'user_id' in session and User.query.filter_by(id=session['user_id'], is_admin=True).first()
 
     @staticmethod
     def user_exists(username):
         return bool(User.query.filter_by(username=username).first())
+
+    @staticmethod
+    def user_with_password(username, password):
+        user_exist = User.query.filter_by(username=username).first()
+        if not user_exist:
+            return "no user"
+        user = User.query.filter_by(username=username).first()
+        if not check_password_hash(user.password_hash, password):
+            return "no password"
+        return user
+
+    @staticmethod
+    def change_status(user_id, status):
+        try:
+            user = User.query.filter_by(id=user_id).first()
+            if not user:
+                return 'Нет такого пользователя'
+            else:
+                user.is_admin = (True if status == 'Админ' else False)
+                db.session.commit()
+                return 'Статус изменён'
+        except:
+            return 'error'
 
 
 class TaskModel:
@@ -179,4 +201,6 @@ class CommentModel:
 
 
 db.create_all()
-# UserModel.add_admin(*MAIN_ADMIN)
+UserModel.add_admin(*MAIN_ADMIN)
+for user in User.query.all():
+    print(user)

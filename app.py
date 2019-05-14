@@ -129,26 +129,55 @@ def edit_task(id):
     return render_template('add_task.html', title='Добавить таск', form=form)
 
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    status_form = StatusForm()
+    ban_form = BanForm()
+
+    if status_form.status_submit.data and status_form.validate_on_submit():
+        id = status_form.status_field.data
+        user = User.query.filter_by(id=id).first()
+        status_message = 'Пользователь не существует'
+        if user:
+            status_message = UserModel.change_status(id, status_form.status_select.data)
+        return render_template('admin.html', title='ADMIN',
+                               status_form=status_form, ban_form=ban_form,
+                               status_message=status_message)
+
+    return render_template('admin.html', title='ADMIN',
+                           status_form=status_form, ban_form=ban_form)
 
 
-@app.route('/users')
+@app.route('/admin/users', methods=['GET', 'POST'])
 def users():
-    return "Привет, Яндекс!"
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    users = User.query.all()
+    return render_template('users.html', title='ADMIN: USERS', users=users)
+
+
+@app.route('/admin/change-status/<int:id>', methods=['GET', 'POST'])
+def change_status(id):
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    user = User.query.filter_by(id=id).first()
+    user.banned = not user.banned
+    db.session.commit()
+
+    return redirect('/admin/users')
 
 
 @app.route('/task-categories')
 def task_categories():
     return "Привет, Яндекс!"
-
-
-@app.route('/admin')
-def admin():
-    return "Привет, Яндекс!"
-
-
-@app.route("/task_edit/<int:task_id>")
-def task_edit(task_id):
-    return "Редактирование"
 
 
 @app.route("/task_info/<int:task_id>")

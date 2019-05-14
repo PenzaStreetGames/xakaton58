@@ -1,48 +1,43 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from database import *
 
+
 TOKEN = '846229948:AAGQ6Ey8qX_yRYFzrjVnWp7_dp9h68J7JhY'
 updater = None
-task_info = ["Название задачи", "Описание задачи", "Категория",
-             "Дата завершения"]
-current = 0
-quest_mode = False
 
 
 def main():
     global updater
     updater = Updater(TOKEN)
     dp = updater.dispatcher
-    text_handler = MessageHandler(Filters.text, echo)
+    text_handler = MessageHandler(Filters.text, echo, pass_user_data=True)
     dp.add_handler(text_handler)
-    dp.add_handler(
-        CommandHandler("auth", auth, pass_args=True, pass_user_data=True))
+    dp.add_handler(CommandHandler("auth", auth, pass_args=True, pass_user_data=True))
     dp.add_handler(CommandHandler("what", what, pass_user_data=True))
     dp.add_handler(CommandHandler("logout", logout, pass_user_data=True))
     dp.add_handler(CommandHandler("task", task))
     dp.add_handler(CommandHandler("expired_task", expired_task))
-    dp.add_handler(CommandHandler("add_task", add_task))
+    dp.add_handler(CommandHandler("add_task", add_task, pass_user_data=True))
     updater.start_polling()
     updater.idle()
 
 
-def echo(bot, update):
-    global current, quest_mode
+def echo(bot, update, user_data):
     tg = Tg.query.filter_by(chat_id=get_chat_id(update)).first()
-    if not quest_mode:
+    if not user_data['quest_mode']:
         return
-    task_info[current] = update.message.text
-    current += 1
-    if current == 4:
-        TaskModel.create(task_info[0], task_info[1],
-                         datetime.datetime.strptime(task_info[3],
-                                                    '%Y-%m-%d-%H.%M'),
-                         User.query.filter_by(username=tg.login).first().id,
-                         category=task_info[2])
+    user_data['task_info'][user_data['current']] = update.message.text
+    user_data['current'] += 1
+    if user_data['current'] == 4:
+        corrected, date = valid_date(user_data['task_info'][3])
+        if not corrected:
+            date = datetime.datetime.strptime(date, '%Y-%m-%d-%H.%M')
+        TaskModel.create(user_data['task_info'][0], user_data['task_info'][1], date,
+                         User.query.filter_by(username=tg.login).first().id, category=user_data['task_info'][2])
         update.message.reply_text("Добавлено")
-        quest_mode = False
+        user_data['quest_mode'] = False
         return
-    update.message.reply_text(task_info[current])
+    update.message.reply_text(user_data['task_info'][user_data['current']])
 
 
 def auth(bot, update, args, user_data):
@@ -91,8 +86,7 @@ def task(bot, update):
         update.message.reply_text("Вы не авторизированы")
         return
     result = ""
-    tasks = Task.query.filter_by(
-        author_id=User.query.filter_by(username=tg.login).first().id).all()
+    tasks = Task.query.filter_by(author_id=User.query.filter_by(username=tg.login).first().id).all()
     for t in tasks:
         result += f"ID{t.id}. {t.name} - {t.date.strftime('%Y-%m-%d-%H.%M')}\n"
 
@@ -105,8 +99,7 @@ def expired_task(bot, update):
         update.message.reply_text("Вы не авторизированы")
         return
     result = ""
-    tasks = Task.query.filter_by(
-        author_id=User.query.filter_by(username=tg.login).first().id).all()
+    tasks = Task.query.filter_by(author_id=User.query.filter_by(username=tg.login).first().id).all()
     for t in tasks:
         if t.date > datetime.datetime.now():
             continue
@@ -115,19 +108,35 @@ def expired_task(bot, update):
     update.message.reply_text(result)
 
 
-def add_task(bot, update):
-    global quest_mode
+def add_task(bot, update, user_data):
     tg = Tg.query.filter_by(chat_id=get_chat_id(update)).first()
     if not tg:
         update.message.reply_text("Вы не авторизированы")
         return
-    quest_mode = True
-    update.message.reply_text(task_info[0])
+    user_data['quest_mode'] = True
+    user_data['current'] = 0
+    user_data['task_info'] = ["Название задачи", "Описание задачи", "Категория", "Дата завершения"]
+    update.message.reply_text(user_data['task_info'][0])
 
 
-# def valid_date(phrase):
-#     if phrase.lower() == 'сегодня':
-#
+def valid_date(phrase):
+    if phrase.lower() == 'сегодня':
+        return True, datetime.datetime.today()
+    elif phrase.lower() == 'завтра':
+        return True, datetime.datetime.now() + datetime.timedelta(days=1)
+    elif phrase.lower() == 'послезавтра':
+        return True, datetime.datetime.now() + datetime.timedelta(days=2)
+    else:
+        weekdays = 'понедельник вторник сред четверг пятниц суббот воксресен'.split()
+        for i in range(7):
+            if weekdays[i] in phrase.lower():
+                days = (i-datetime.datetime.now().weekday()) % 7
+                if datetime.datetime.now().weekday() == i:
+                    days += 7
+                return True, datetime.datetime.now() + \
+                       datetime.timedelta(days=days)
+        return False, phrase
+
 
 if __name__ == '__main__':
     main()

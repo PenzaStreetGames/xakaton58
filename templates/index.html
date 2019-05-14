@@ -2,9 +2,10 @@
 
 {% block content %}
 {% if is_login%}
-<table>
+<table class="table table-striped">
     {% for i in range(task_number) %}
     <tr>
+        <th scope="row">{{i}}</th>
         <td>{{tasks[i].name}}</td>
         <td>{{tasks[i].date}}</td>
         <td>{{tasks[i].executor}}</td>

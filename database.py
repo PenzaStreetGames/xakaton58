@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from datetime import time
 from werkzeug.security import generate_password_hash
+import datetime
 
 
 DATABASE_NAME = "database.db"
@@ -120,16 +121,17 @@ class TaskModel:
         return Comment.query.filter_by(task_id=task_id).all()
 
     @staticmethod
-    def create(name, description, date, author, executor=None, priority=1, category="",
-               stage=1, tags=[]):
+    def create(name, description, author, date, executor=None, priority=1, category="",
+               stage=1):
         task = Task(name=name,
                     description=description,
                     date=date,
-                    author=author,
+                    author_id=author,
                     executor_id=executor,
                     priority=priority,
                     category=category,
-                    stage=stage)
+                    stage=stage,
+                    )
         db.session.add(task)
         db.session.commit()
 

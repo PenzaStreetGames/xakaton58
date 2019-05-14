@@ -38,11 +38,5 @@ class AddTask(FlaskForm):  # Форма добавления задачи
     desc = StringField('Описание', validators=[
         DataRequired(message='Поле обязательно для заполнения'),
         Length(min=3, max=1000, message='Описание должено быть длиной от 3 до 1000 символов')])
-
     date = DateTimeField()
-
-    author = StringField('ФИО', validators=[
-        DataRequired(message='Поле обязательно для заполнения'),
-        Length(max=80, message='ФИО должно быть длиной до 80 символов')])
-
     submit = SubmitField('Добавить задачу')

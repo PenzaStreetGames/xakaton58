@@ -83,18 +83,12 @@ def logout():
 
 @app.route('/add-task', methods=['GET', 'POST'])
 def add_task():
+    if 'username' not in session:
+        return redirect('/login')
+
     form = AddTask()
     if form.validate_on_submit():
-        # if User.query.filter_by(username=form.username.data).first() is None:
-        #     user = User(username=form.username.data,
-        #                 password_hash=generate_password_hash(form.password.data))
-        #     db.session.add(user)
-        #     db.session.commit()
-        #
-        #     user = User.query.filter_by(username=form.username.data).first()
-        #     session.clear()
-        #     session['username'] = user.username
-        #     session['user_id'] = user.id
+        TaskModel.create(form.name.data, form.desc.data, session['user_id'], form.date.data)
         return redirect('/')
 
     # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')

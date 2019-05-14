@@ -3,6 +3,7 @@ import logging
 import json
 from database import *
 from werkzeug.security import check_password_hash, generate_password_hash
+
 """https://Wignorbo.pythonanywhere.com/post"""
 
 app = Flask(__name__)
@@ -29,6 +30,12 @@ def main():
 
 def handle_dialog(req, res):
     user_id = req["session"]["user_id"]
+    answer = req["request"]["original_utterance"]
+    if answer == "выйти":
+        sessionStorage[user_id] = {
+            "username": False,
+            "password": False
+        }
     if req["session"]["new"]:
         sessionStorage[user_id] = {
             "username": False,
@@ -40,15 +47,17 @@ def handle_dialog(req, res):
         username = req["request"]["original_utterance"]
         auth = UserModel.user_exists(username)
         if not auth:
-            res["response"]["text"] = "Такого пользователя нет. Введи ещё раз."
+            res["response"][
+                "text"] = "Такого пользователя нет. Введи ещё раз."
             return
         sessionStorage[user_id]["username"] = username
         res["response"]["text"] = "Введи пароль."
         return
     if not sessionStorage[user_id]["password"]:
         password = req["request"]["original_utterance"]
-        auth = UserModel.user_with_password(sessionStorage[user_id]["username"],
-                                            password)
+        auth = UserModel.user_with_password(
+            sessionStorage[user_id]["username"],
+            password)
         if auth == "no password":
             res["response"]["text"] = "Неправильный пароль. Введи ещё раз."
             return

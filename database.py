@@ -77,6 +77,12 @@ class Tg(db.Model):
     chat_id = db.Column(db.Integer, nullable=False)
 
 
+class Alice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    app_id = db.Column(db.String(80), nullable=False)
+
+
 # Методы
 
 
@@ -209,10 +215,6 @@ class CommentModel:
 
 db.create_all()
 Task.query.delete()
-TaskModel.create("Задача1", "Описание первой задачи", datetime.datetime(2019, 5, 23, 11, 50), 1)
-TaskModel.create("Задача2", "Описание второй задачи", datetime.datetime(2019, 5, 24, 17, 40), 1)
-TaskModel.create("Задача3", "Описание третьей задачи", datetime.datetime(2018, 5, 28, 12, 00), 1)
-TaskModel.create("Задача1", "Описание первой задачи", datetime.datetime(2019, 5, 28, 12, 00), 2)
 UserModel.add_admin(*MAIN_ADMIN)
 for user in User.query.all():
     print(user)

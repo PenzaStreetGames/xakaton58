@@ -14,10 +14,13 @@
                 {% endfor %}
             </p>
         {% endfor %}
-        {% if error %}
-            <h5>{{ error }}</h5>
-        {% endif %}
+
         <p>{{ form.submit() }}</p>
+        {% for error in form.submit.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endfor %}
         <a href="/login">Войти</a>
     </form>
 {% endblock %}

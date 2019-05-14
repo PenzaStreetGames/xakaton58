@@ -91,6 +91,40 @@ def add_task():
     return render_template('add_task.html', title='Добавить таск', form=form)
 
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if not UserModel.is_admin(session):
+        print(session, UserModel.is_admin(session))
+        return redirect('/')
+
+    status_form = StatusForm()
+    ban_form = BanForm()
+
+    if status_form.status_submit.data and status_form.validate_on_submit():
+        id = status_form.status_field.data
+        user = User.query.filter_by(id=id).first()
+        status_message = 'Пользователь не существует'
+        if user:
+            status_message = UserModel.change_status(id, status_form.status_select.data)
+        return render_template('admin.html', title='ADMIN',
+                               status_form=status_form, ban_form=ban_form,
+                               status_message=status_message)
+
+    # if ban_form.ban_submit.data and ban_form.validate_on_submit():
+    #     id = ban_form.ban_field.data
+    #     user = User.query.filter_by(id=id).first()
+    #     ban_message = 'Пользователь не существует'
+    #     if user:
+    #         ban_message = functions.ban_user(id)
+    #
+    #     return render_template('admin.html', title='ADMIN',
+    #                            status_form=status_form, ban_form=ban_form, info_form=info_form,
+    #                            ban_message=ban_message)
+
+    return render_template('admin.html', title='ADMIN',
+                           status_form=status_form, ban_form=ban_form)
+
+
 @app.route('/users')
 def users():
     return "Привет, Яндекс!"
@@ -98,11 +132,6 @@ def users():
 
 @app.route('/task-categories')
 def task_categories():
-    return "Привет, Яндекс!"
-
-
-@app.route('/admin')
-def admin():
     return "Привет, Яндекс!"
 
 

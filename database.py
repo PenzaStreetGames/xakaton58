@@ -31,7 +31,7 @@ class User(db.Model):
     banned = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
-        return f'User ID{self.id}. {self.username}'
+        return f'User ID{self.id}. {self.username} - ADMIN ({self.is_admin})'
 
 
 class Task(db.Model):
@@ -99,19 +99,31 @@ class UserModel:
 
     @staticmethod
     def is_admin(session):
-        return 'user_id' in session and User.query.filter_by(
-            User.id == session['user_id'], User.is_admin == True).first()
+        return 'user_id' in session and User.query.filter_by(id=session['user_id'], is_admin=True).first()
 
     @staticmethod
     def user_exists(username):
         return bool(User.query.filter_by(username=username).first())
+
+    @staticmethod
+    def change_status(user_id, status):
+        print(status)
+        try:
+            user = User.query.filter_by(id=user_id).first()
+            if not user:
+                return 'Нет такого пользователя'
+            else:
+                user.is_admin = (True if status == 'Админ' else False)
+                db.session.commit()
+                return 'Статус изменён'
+        except:
+            return 'error'
 
 
 class TaskModel:
     @staticmethod
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
-
 
     @staticmethod
     def create(name, description, date, author, executor=None, priority=1, category="",
@@ -169,4 +181,6 @@ class CategoryModel:
 
 
 db.create_all()
-# UserModel.add_admin(*MAIN_ADMIN)
+UserModel.add_admin(*MAIN_ADMIN)
+for user in User.query.all():
+    print(user)

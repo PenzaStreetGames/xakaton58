@@ -87,6 +87,13 @@ class UserModel:
         db.session.commit()
 
     @staticmethod
+    def find(id):
+        user = User.query.filter(Task.author_id == id).all()
+        if not user:
+            return
+        return user
+
+    @staticmethod
     def add_user(username, password):
         if UserModel.user_exists(username):
             return
@@ -168,7 +175,9 @@ class CategoryModel:
         pass
 
 
-class
+class CommentModel:
+    pass
+
 
 db.create_all()
 # UserModel.add_admin(*MAIN_ADMIN)

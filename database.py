@@ -27,8 +27,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(160), nullable=False)
     name = db.Column(db.String(80))
     surname = db.Column(db.String(80))
-    is_admin = db.Column(db.Boolean, nullable=False)
-    banned = db.Column(db.Boolean, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    banned = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return f'User ID{self.id}. {self.username}'
@@ -135,4 +135,4 @@ class CategoryModel:
 
 
 db.create_all()
-UserModel.add_admin(*MAIN_ADMIN)
+# UserModel.add_admin(*MAIN_ADMIN)

@@ -3,6 +3,7 @@ from forms import *
 from flask import session, send_file
 from flask import request, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import os
 from database import *

@@ -63,7 +63,12 @@ class Comment(db.Model):
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
-db.create_all()
+class Delegation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    executor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
+
 
 # Методы
 
@@ -103,15 +108,42 @@ class UserModel:
 
 
 class TaskModel:
-
     @staticmethod
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
 
 
     @staticmethod
-    def create():
-        pass
+    def create(name, description, date, author, executor=None, priority=1, category="",
+               stage=1, tags=[]):
+        task = Task(name=name,
+                    description=description,
+                    date=date,
+                    author=author,
+                    executor_id=executor,
+                    priority=priority,
+                    category=category,
+                    stage=stage,
+                    tags=tags)
+        db.session.add(task)
+        db.session.commit()
+
+    @staticmethod
+    def is_delegated(task_id):
+        return bool(Delegation.query.filter_by(task_id=task_id).count())
+
+    @staticmethod
+    def add_tags(task_id, tags):
+        task = Task.query.filter_by(task_id=task_id).first()
+        task.tags = f"{task.tags},{tags}"
+        db.session.commit()
+
+    @staticmethod
+    def filter_by_tags(word, delegated_only=False):
+        tasks = Task.query.filter_by(Task.tags.like(f"%{word}%")).all()
+        if delegated_only:
+            tasks = filter(lambda x: TaskModel.is_delegated(x.id), tasks)
+        return tasks
 
 
 class CategoryModel:

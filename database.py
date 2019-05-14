@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from datetime import time
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 
 
 DATABASE_NAME = "database.db"
@@ -70,6 +71,12 @@ class Delegation(db.Model):
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
 
 
+class Tg(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String(80), nullable=False)
+    chat_id = db.Column(db.Integer, nullable=False)
+
+
 # Методы
 
 
@@ -130,12 +137,11 @@ class TaskModel:
         task = Task(name=name,
                     description=description,
                     date=date,
-                    author=author,
+                    author_id=author,
                     executor_id=executor,
                     priority=priority,
                     category=category,
-                    stage=stage,
-                    tags=tags)
+                    stage=stage)
         db.session.add(task)
         db.session.commit()
 
@@ -180,6 +186,11 @@ class CategoryModel:
 
 
 db.create_all()
+Task.query.delete()
+TaskModel.create("Задача1", "Описание первой задачи", datetime.datetime(2019, 5, 23, 11, 50), 1)
+TaskModel.create("Задача2", "Описание второй задачи", datetime.datetime(2019, 5, 24, 17, 40), 1)
+TaskModel.create("Задача3", "Описание третьей задачи", datetime.datetime(2018, 5, 28, 12, 00), 1)
+TaskModel.create("Задача1", "Описание первой задачи", datetime.datetime(2019, 5, 28, 12, 00), 2)
 UserModel.add_admin(*MAIN_ADMIN)
 for user in User.query.all():
     print(user)

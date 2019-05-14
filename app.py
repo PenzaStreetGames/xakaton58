@@ -7,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from database import *
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum58_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
@@ -31,12 +30,7 @@ def register():
             db.session.add(user)
             db.session.commit()
 
-            user = User.query.filter_by(username=form.username.data).first()
-            session.clear()
-            session['username'] = user.username
-            session['user_id'] = user.id
-            return redirect('/')
-
+            return redirect('/success')
         form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')
     return render_template('register.html', title='Регистрация', form=form)
 
@@ -65,6 +59,12 @@ def login():
     return render_template('login.html', title='Вход', form=form)
 
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
+
+
 @app.route('/add-task', methods=['GET', 'POST'])
 def add_task():
     form = AddTask()
@@ -79,9 +79,9 @@ def add_task():
         #     session.clear()
         #     session['username'] = user.username
         #     session['user_id'] = user.id
-            return redirect('/')
+        return redirect('/')
 
-        # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')
+    # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')
     return render_template('add_task.html', title='Добавить таск', form=form)
 
 

@@ -27,8 +27,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(160), nullable=False)
     name = db.Column(db.String(80))
     surname = db.Column(db.String(80))
-    is_admin = db.Column(db.Boolean, default=False, nullable=False)
-    banned = db.Column(db.Boolean, default=False, nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False)
+    banned = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return f'User ID{self.id}. {self.username}'
@@ -40,11 +40,12 @@ class Task(db.Model):
     description = db.Column(db.String(1000), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author = db.relationship('User', backref=db.backref('tasks', lazy=True))
     executor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     priority = db.Column(db.Integer)
     category = db.Column(db.Integer, db.ForeignKey('category.id'))
     stage = db.Column(db.Integer)
-    executed = db.Column(db.Boolean)
+    executed = db.Column(db.Boolean, default=False)
 
 
 class Category(db.Model):
@@ -60,6 +61,7 @@ class Stage(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('comments', lazy=True))
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
@@ -69,6 +71,8 @@ class Delegation(db.Model):
     executor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=False)
 
+
+db.create_all()
 
 # Методы
 
@@ -112,12 +116,6 @@ class TaskModel:
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
 
-
-    @staticmethod
-    def create(name, description, date, author, executor, priority, category,
-               stage, tags):
-        pass
-
     @staticmethod
     def is_delegated(task_id):
         return bool(Delegation.query.filter_by(task_id=task_id).count())
@@ -134,29 +132,3 @@ class TaskModel:
         if delegated_only:
             tasks = filter(lambda x: TaskModel.is_delegated(x.id), tasks)
         return tasks
-
-
-class CategoryModel:
-
-    @staticmethod
-    def get_by_category(self, category):
-        """получеие пользователя по id"""
-        task = Task.query.filter(Task.id == category).all()
-        if not task:
-            return
-        return task
-
-    @staticmethod
-    def get_by_author(self, author):
-        """получение задач пользователя"""
-        task = Task.query.filter(Task.author_id == author).all()
-        if not task:
-            return
-        return task
-
-    def delete(self):
-        pass
-
-
-db.create_all()
-# UserModel.add_admin(*MAIN_ADMIN)

@@ -4,7 +4,7 @@ from datetime import time
 from werkzeug.security import generate_password_hash
 
 
-ATABASE_NAME = "database.db"
+DATABASE_NAME = "database.db"
 TITLE = "TaskDelegator"
 STATUSES = {
     'user': 'Пользователь',
@@ -40,7 +40,6 @@ class Task(db.Model):
     description = db.Column(db.String(1000), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    author = db.relationship('User', backref=db.backref('tasks', lazy=True))
     executor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     priority = db.Column(db.Integer)
     category = db.Column(db.Integer, db.ForeignKey('category.id'))
@@ -61,7 +60,6 @@ class Stage(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('comments', lazy=True))
     task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
 
 
@@ -103,8 +101,6 @@ class UserModel:
     def user_exists(username):
         return bool(User.query.filter_by(username=username).first())
 
-    add_admin(*MAIN_ADMIN)
-
 
 class TaskModel:
 
@@ -112,3 +108,33 @@ class TaskModel:
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
 
+
+    @staticmethod
+    def create():
+        pass
+
+
+class CategoryModel:
+
+    @staticmethod
+    def get_by_category(self, category):
+        """получеие пользователя по id"""
+        task = Task.query.filter(Task.id == category).all()
+        if not task:
+            return
+        return task
+
+    @staticmethod
+    def get_by_author(self, author):
+        """получение задач пользователя"""
+        task = Task.query.filter(Task.author_id == author).all()
+        if not task:
+            return
+        return task
+
+    def delete(self):
+        pass
+
+
+db.create_all()
+UserModel.add_admin(*MAIN_ADMIN)

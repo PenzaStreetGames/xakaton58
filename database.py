@@ -215,7 +215,6 @@ class CommentModel:
 
 
 db.create_all()
-Task.query.delete()
 UserModel.add_admin(*MAIN_ADMIN)
 for user in User.query.all():
     print(user)

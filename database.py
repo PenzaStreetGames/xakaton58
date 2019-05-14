@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from datetime import time
 from werkzeug.security import generate_password_hash
+import datetime
 
 
 DATABASE_NAME = "database.db"
@@ -114,11 +115,11 @@ class TaskModel:
 
 
     @staticmethod
-    def create(name, description, date, author, executor=None, priority=1, category="",
+    def create(name, description, author, executor=None, priority=1, category="",
                stage=1, tags=[]):
         task = Task(name=name,
                     description=description,
-                    date=date,
+                    date=datetime.datetime.now(),
                     author=author,
                     executor_id=executor,
                     priority=priority,

@@ -4,6 +4,7 @@ from flask import session, send_file
 from flask import request, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
+import datetime
 
 import os
 from database import *
@@ -13,6 +14,11 @@ app.config['SECRET_KEY'] = 'yandexlyceum58_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_NAME}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+stages = {
+    1: "Новая",
+    2: "Начата",
+    3: "Закончена"
+}
 
 
 @app.route('/')
@@ -75,15 +81,7 @@ def add_task():
 
     form = AddTask()
     if form.validate_on_submit():
-        task = Task(name=form.name.data,
-                    description=form.desc.data,
-                    date=form.date.data)
-        db.session.commit()
-
-        user = User.query.filter_by(username=form.username.data).first()
-        session.clear()
-        session['username'] = user.username
-        session['user_id'] = user.id
+        TaskModel.create(form.name.data, form.desc.data, session['user_id'])
         return redirect('/')
 
     # form.submit.errors.append('Пользователь с таким именем уже зарегестрирован в системе. Исправьте данные')

@@ -119,7 +119,6 @@ class TaskModel:
     def get_comments(task_id):
         return Comment.query.filter_by(task_id=task_id).all()
 
-
     @staticmethod
     def create(name, description, date, author, executor=None, priority=1, category="",
                stage=1, tags=[]):
@@ -130,8 +129,7 @@ class TaskModel:
                     executor_id=executor,
                     priority=priority,
                     category=category,
-                    stage=stage,
-                    tags=tags)
+                    stage=stage)
         db.session.add(task)
         db.session.commit()
 

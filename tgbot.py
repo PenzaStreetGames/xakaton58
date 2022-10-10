@@ -2,7 +2,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from database import *
 
 
-TOKEN = '846229948:AAGQ6Ey8qX_yRYFzrjVnWp7_dp9h68J7JhY'
+TOKEN = 'aboba'
 updater = None
 
 
